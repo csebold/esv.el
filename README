@@ -1,0 +1,124 @@
+(note: this text just hauled over from EmacsWiki at the moment; home page for this project is really at http://www.emacswiki.org/emacs/EsvMode for now)
+
+EsvMode is a simple interface to the ESV API, so you can get passages
+from the English Standard Version of the Bible.  CharlesSebold wrote it.
+
+Current version of the code just gets the text and displays it.  I'm
+still trying to figure out this whole XML thing.  Requires at least
+Emacs 22.
+
+== Usage ==
+
+To use this, you must customize or otherwise set the variable
+ESV-KEY!  Otherwise by default the ESV API handlers will not call out
+to the ESV website.  At the minimum, do this:
+
+  M-x customize-variable RET esv-key RET
+
+And set it to "Non-keyed usage" (IP) if you're just going to use this
+for personal use in Emacs.  Details of the ESV license for this
+information can be found at http://www.esvapi.org/ and I recommend
+looking it over.
+
+This package consists of two functionalities:  one is to recognize
+passages in your buffers and make it easy for you to look them up in
+the ESV (that's esv-mode), and one is a way to retrieve ESV passages
+using their web API and display them internally in Emacs.  This can
+be used to get individual passages (which you can specify or retrieve
+from your text using esv-mode), or you can go through a daily reading
+plan (great for those of us who live in Emacs).
+
+To use this package, you can save this file somewhere in your
+load-path and put the following in your .emacs at a minimum:
+
+<pre>
+  (require 'esv)
+  ; the following keys should be mapped to whatever works best for
+  ; you:
+  ; C-c e looks up a passage and displays it in a pop-up window
+  (define-key global-map [(control c) ?e] 'esv-passage)
+  ; C-c i inserts an ESV passage in plain-text format at point
+  (define-key global-map [(control c) ?i] 'esv-insert-passage)
+  ; If you don't want to use customize, you can set this for casual
+  ; usage (but read http://www.esvapi.org/ for license):
+  (setq esv-key "IP")
+</pre>
+
+To make esv-mode work whenever text-mode does, you can put this in
+your .emacs as well:
+
+<pre>
+  (add-hook 'text-mode-hook 'turn-on-esv-mode)
+</pre>
+
+If you only want it in certain files, you can add it to the first
+line or the local variables (see (info "(emacs)File Variables") for
+more information):
+
+<pre>
+    -*- mode: text; mode: esv; -*-
+</pre>
+
+or
+
+<pre>
+    Local Variables:
+    mode: esv;
+    End:
+</pre>
+
+However, note the warning about imposing your individual preferences
+on files at the end of the info node above.
+
+== Bugs ==
+
+# <code>esv-mode</code> (the minor mode, not the whole thing here) doesn't work too well; I'm not great with syntax highlighting.
+# If you <code>esv-insert-passage</code> something that is formatted as poetry, it will not get the "(ESV)" text at the end of the last line.  This is because of the ESV API, not because of my code; when you call for plain-text output from their web service, you get "(ESV)" at the end of most sections of Biblical text, but not things that are preformatted as poetry.  I don't consider this a big enough problem to work around, myself, but if somebody wants to submit code to look for that and fix it, I'd be willing to include it, with a <code>defcustom</code> to allow people to leave it the way it came from their web service by default.
+# The text formatting, when I'm parsing it out of the XML, can be goofy.  Some of this depends on how your AutoFillMode, FillAdapt, and so forth are configured.  I'd like to make that better, and maybe someday I'll have the time.
+# Emacs 21 is no longer officially supported, mostly because I'm using UTF-8 to encode the source file now that I'm having to parse some strange things in the footnotes.  If there's an elegant way to make this work backwards, I'm interested in hearing about it, but Emacs 22 has been out for a while.
+
+Related to the word wrap and line length, LongLines will cause the automatic column width that is sent to the API to be some crazy big number, and the results are often not what you were hoping.  You can adjust this by advising <code>esv-insert-passage</code> and let-ing fill-column be a sane number (72 in the example below) before sending it, like this:
+
+<pre>
+(defadvice esv-insert-passage (around longlines-fix-length nil activate)
+  "Force fill-column to a sane number."
+  (let ((fill-column 72))
+    ad-do-it))
+</pre>
+
+== Feature Requests ==
+
+# I'd like to extend this to other Bible-verse web services as well, and make the ESV one just one of many pluggable options.
+# I'd like to generate something for arbitrary reading plans, invented or submitted by users; I'm using Grant Horner's ten-chapters-per-day model now and I've got a fairly complicated system that OrgMode is driving to get me those chapters, but it's not easily extended to work for EsvMode at the moment.
+# I really want to do some cool face work with the <code>esv-reading-mode</code> major mode, to make a really nice Bible reading page.  That's a pretty low priority when there's missing functionality, though.
+
+== Changelog ==
+
+1.11 includes reading plan support (esv-reading-plan, use prefix
+argument to specify date), plain text insertion which is good for email
+(esv-insert-passage), and more prep work for better support in the
+future.
+
+1.16 makes it possible to run esv-mode, a minor mode that makes Bible
+references clickable, and can be configured to either display them
+internally or externally via web-browser (or other function of your
+choice).
+
+1.18 adds documentation and fixes a customization problem.
+
+1.19 fixed a problem with the regexp that finds passages (but not every
+problem) and attempts to fix the multiline problem too
+
+1.20 wasn't really a change (I pulled out the CVS ID, I've switched to git)
+
+1.21 adds esv-region()
+
+1.22 adds yank if mouse-2 happens in a non-clickable region
+
+1.23 adds new reading plans from Crossway
+
+1.24 adds support for ē entity and adds a framework for more if more are found in the footnotes, thanks to Matt Gumm for bug report; Emacs 21 no longer officially supported
+
+1.25 fixes a bug when quitting esv-display-mode with only one window present
+
+1.26 fixes a bug introduced in 1.24
