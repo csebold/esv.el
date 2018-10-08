@@ -124,3 +124,5 @@ problem) and attempts to fix the multiline problem too
 1.26 fixes a bug introduced in 1.24
 
 1.27 Updated the library headers (thanks Tarsius on Github!) to spec at (info "(elisp)Library Headers")
+
+1.28 Orphaning this; please adopt this old thing, I clearly don't have time for Emacs hacking anymore.
