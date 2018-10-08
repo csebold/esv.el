@@ -4,7 +4,7 @@
 
 ;; Author: Charles Sebold <csebold@gmail.com>
 ;; Created: 1 Jan 2008
-;; Version: 1.27
+;; Version: 1.28
 ;; Keywords: comm, hypermedia
 
 ;; This file is not part of GNU Emacs.
@@ -24,6 +24,8 @@
 
 ;;; Commentary:
 
+;;; This package is being orphaned, please adopt it!
+;;;
 ;;; Latest version should be available at:
 ;;;    <URL:http://www.emacswiki.org/cgi-bin/wiki/EsvMode>
 ;;;
